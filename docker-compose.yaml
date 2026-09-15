@@ -1,0 +1,18 @@
+services:
+  webtool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webtool
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - webtool-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - ACTIVITY_DB_PATH=/app/data/webtool.db
+
+volumes:
+  webtool-data:
