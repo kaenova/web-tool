@@ -43,12 +43,24 @@ interface Crawl4aiTask {
     results?: Array<{
       url?: string;
       html?: string;
-      markdown?: string;
+      // Crawl4AI new API returns markdown as { raw_markdown, markdown_with_citations, fit_html, ... }
+      markdown?: string | { raw_markdown?: string; [k: string]: unknown };
       metadata?: Record<string, unknown>;
       status_code?: number;
     }>;
   };
   error?: string;
+}
+
+// ponytail: normalize Crawl4AI markdown dict → string; revisit if upstream ships typed field
+function normalizeMarkdown(m: unknown): string | undefined {
+  if (typeof m === "string") return m;
+  if (m && typeof m === "object") {
+    const obj = m as Record<string, unknown>;
+    if (typeof obj.raw_markdown === "string") return obj.raw_markdown;
+    if (typeof obj.markdown === "string") return obj.markdown;
+  }
+  return undefined;
 }
 
 export async function scrapeCrawl4ai(backend: Backend, req: ScrapeRequest): Promise<ScrapeResponse> {
@@ -104,7 +116,7 @@ export async function scrapeCrawl4ai(backend: Backend, req: ScrapeRequest): Prom
               sourceURL: first.url ?? req.url,
               statusCode: first.status_code ?? (meta["status_code"] as number | undefined),
             },
-            markdown: first.markdown,
+            markdown: normalizeMarkdown(first.markdown),
             html: first.html,
             rawHtml: first.html,
             screenshot: undefined,
