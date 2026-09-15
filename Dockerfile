@@ -12,7 +12,7 @@ RUN bun run build
 FROM oven/bun:1
 WORKDIR /app
 
-COPY --from=builder /app/package.json bun.lock ./
+COPY --from=builder /app/package.json /app/bun.lock ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
