@@ -60,7 +60,8 @@ export async function GET() {
           WHEN latency_ms < 5000 THEN 3
           WHEN latency_ms < 15000 THEN 4
           ELSE 5 END as ord
-     ) GROUP BY bucket, ord ORDER BY ord`
+     FROM request_logs
+     ) as b GROUP BY b.bucket, b.ord ORDER BY b.ord`
   ).all();
 
   // Analytics: daily series last 14 days
